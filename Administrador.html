@@ -1,0 +1,309 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=Poppins" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background-color: #d7d2cb;
+      border: 20px solid #7a8f7a;
+      box-sizing: border-box;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #ccc;
+      position: relative;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+    }
+    .user-info img {
+      width: 40px; /* Larger user icon */
+      height: 40px;
+    }
+    .user-info span {
+      font-size: 16px; /* Larger user name */
+      font-weight: 600;
+    }
+    .search-bar {
+      flex: 1;
+      max-width: 450px;
+      margin: 0 40px;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 12px 12px 12px 45px;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+    }
+    .search-bar img {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+    }
+    .icons {
+      display: flex;
+      gap: 10px;
+      position: absolute;
+      right: 120px; /* Position left of user name */
+      top: 15px; /* Align with user info */
+      z-index: 10;
+    }
+    .icons img {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+      margin: 30px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      align-items: flex-start;
+    }
+    .menu {
+      width: 180px;
+      background-color: #d7d2cb;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: none;
+    }
+    .menu-items {
+      background-color: #f8f8f8;
+      padding: 20px 0;
+    }
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-bottom: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .menu li img {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      flex-shrink: 0; /* Prevent icon shrinking */
+    }
+    .menu li:last-child {
+      border-bottom: none;
+    }
+    .menu li:hover {
+      background-color: #e05576;
+      color: white;
+      border-radius: 4px;
+    }
+    .logout-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 10px 20px;
+    }
+    .logout-button:hover {
+      background-color: #b33c5e;
+    }
+    .content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      background-color: #ffffff;
+      margin: 0;
+    }
+    .content h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      margin-top: 0;
+    }
+    .modal {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      margin: 0 0 10px;
+    }
+    .modal-content img {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 10px;
+    }
+    .modal-content p {
+      font-size: 16px;
+      margin: 0 0 20px;
+    }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #000000;
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal -->
+  <div id="welcomeModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal()">×</span>
+      <img src="https://img.icons8.com/fluent/40/000000/happy.png" alt="Icono">
+      <h2>¡Bienvenido admin!</h2>
+      <p>Estás en el panel de administración</p>
+    </div>
+  </div>
+  <!-- Main Content -->
+  <div class="header">
+    <div class="search-bar">
+      <img src="https://img.icons8.com/ios-filled/20/000000/search--v1.png" alt="Search Icon">
+      <input type="text" id="searchInput" placeholder="Buscar usuarios..." oninput="searchUsers()">
+    </div>
+    <div class="icons">
+      <img src="https://img.icons8.com/ios/24/000000/speech-bubble--v2.png" alt="Messages" onclick="alert('Mensajes no implementados')">
+      <img src="https://img.icons8.com/ios/24/000000/bell--v3.png" alt="Notifications" onclick="alert('Notificaciones no implementados')">
+    </div>
+    <div class="user-info">
+      <span id="userName">Juan Pérez</span>
+      <img src="https://img.icons8.com/ios-glyphs/40/000000/user--v1.png" alt="User Icon">
+    </div>
+  </div>
+  <div class="container">
+    <div class="menu">
+      <div class="menu-items">
+        <ul>
+          <li onclick="showContent('main')">
+            <img src="https://img.icons8.com/ios/20/000000/home--v1.png" alt="Main Icon">
+            Menú Principal
+          </li>
+          <li onclick="showContent('users')">
+            <img src="https://img.icons8.com/ios/20/000000/users.png" alt="Users Icon">
+            Gestión Usuarios
+          </li>
+          <li onclick="showContent('reports')">
+            <img src="https://img.icons8.com/ios/20/000000/bar-chart.png" alt="Reports Icon">
+            Reportes
+          </li>
+          <li onclick="showContent('settings')">
+            <img src="https://img.icons8.com/ios/20/000000/settings--v1.png" alt="Settings Icon">
+            Configuración
+          </li>
+          <li onclick="showContent('activities')">
+            <img src="https://img.icons8.com/ios/20/000000/checklist.png" alt="Activities Icon">
+            Actividades
+          </li>
+          <li onclick="showContent('inventory')">
+            <img src="https://img.icons8.com/ios/20/000000/inventory.png" alt="Inventory Icon">
+            Control de Inventario
+          </li>
+        </ul>
+      </div>
+      <button class="logout-button" onclick="logout()">< Cerrar Sesión</button>
+    </div>
+    <div class="content">
+      <h2>Bienvenido al Panel de Administración</h2>
+      <p>Selecciona una opción del menú para comenzar.</p>
+      <div id="searchResults"></div>
+    </div>
+  </div>
+  <script>
+    // Show modal and set user info on page load
+    window.onload = function() {
+      document.getElementById('welcomeModal').style.display = 'flex';
+      document.getElementById('userName').textContent = 'Juan Pérez'; // Replace with actual user data
+    };
+
+    function closeModal() {
+      document.getElementById('welcomeModal').style.display = 'none';
+    }
+
+    function showContent(section) {
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = `<h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2><p>Contenido para ${section} (en desarrollo).</p>`;
+    }
+
+    function logout() {
+      window.location.href = '/'; // Redirect to first page
+    }
+
+    async function searchUsers() {
+      const query = document.getElementById('searchInput').value;
+      if (query.length < 3) {
+        document.getElementById('searchResults').innerHTML = '';
+        return;
+      }
+      try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        const users = await response.json();
+        const resultsDiv = document.getElementById('searchResults');
+        if (users.length === 0) {
+          resultsDiv.innerHTML = '<p>No se encontraron usuarios.</p>';
+        } else {
+          resultsDiv.innerHTML = '<ul>' + users.map(user => `<li>${user.nombre} ${user.apellido} (${user.email})</li>`).join('') + '</ul>';
+        }
+      } catch (error) {
+        console.error('Error en la búsqueda:', error);
+        document.getElementById('searchResults').innerHTML = '<p>Error al buscar usuarios.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

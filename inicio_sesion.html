@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=Poppins" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #d7d2cb;
+      border: 20px solid #7a8f7a;
+      box-sizing: border-box;
+    }
+    .title-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #000000;
+      white-space: nowrap;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+    }
+    button {
+      background-color: #e05576;
+      color: white;
+      border: 2px solid #000000;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 15px;
+      border-radius: 8px;
+      width: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    button:hover {
+      background-color: #b33c5e;
+    }
+    .back-button {
+      background-color: #e05576;
+      color: white;
+      position: absolute;
+      top: 1.5cm;
+      left: 1.5cm;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      border: none;
+      white-space: nowrap;
+    }
+    .back-button:hover {
+      background-color: #b33c5e;
+    }
+    .change-password {
+      margin-top: 10px;
+      color: #0000ff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      text-decoration: underline;
+      text-align: center;
+      cursor: pointer;
+    }
+    .change-password:hover {
+      color: #0000cc;
+    }
+    img {
+      width: 40px;
+      height: 40px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      position: relative;
+      text-align: center;
+    }
+    .modal-content h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      margin: 0 0 15px;
+    }
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #000000;
+    }
+    .modal-content input {
+      width: calc(100% - 24px);
+      margin: 10px 0;
+    }
+    .modal-content button {
+      width: 100px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="window.location.href='/inicio'">Cambiar de rol</button>
+  <div class="container">
+    <div class="title-container">
+      <img id="rolIcon" src="https://img.icons8.com/fluent/40/000000/admin-settings-male.png" alt="Icono">
+      <h1 id="welcomeText">¡Bienvenido@, admin!</h1>
+    </div>
+    <form action="/login" method="POST">
+      <input type="hidden" name="rol" id="rolInput">
+      <input type="email" name="email" placeholder="Correo" required>
+      <input type="password" name="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="change-password" onclick="openModal()">Cambiar contraseña</div>
+  </div>
+  <div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal()">×</span>
+      <h2>Cambiar contraseña</h2>
+      <form id="changePasswordForm" action="/cambiar-contrasena" method="POST">
+        <input type="hidden" name="rol" id="modalRolInput">
+        <input type="email" name="email" placeholder="Correo" required>
+        <input type="password" name="newPassword" placeholder="Nueva contraseña" required>
+        <button type="submit">Aceptar</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const rol = urlParams.get('rol') || 'admin';
+    document.getElementById('welcomeText').textContent = `¡Bienvenido@, ${rol}!`;
+    document.getElementById('rolInput').value = rol;
+    document.getElementById('modalRolInput').value = rol; // Set role in modal form
+    document.body.className = rol.toLowerCase();
+
+    const iconMap = {
+      admin: 'https://img.icons8.com/fluent/40/000000/admin-settings-male.png',
+      logistica: 'https://img.icons8.com/fluent/40/000000/delivery-truck.png',
+      contador: 'https://img.icons8.com/fluent/40/000000/calculator.png',
+      cajero: 'https://img.icons8.com/fluent/40/000000/cash-register.png'
+    };
+    document.getElementById('rolIcon').src = iconMap[rol.toLowerCase()] || iconMap.admin;
+
+    function openModal() {
+      document.getElementById('changePasswordModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('changePasswordModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
