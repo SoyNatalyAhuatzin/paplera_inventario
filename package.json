@@ -1,14 +1,19 @@
 {
   "name": "enfrente",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "js_app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node js_app.js",
+    "build": "echo No build required for Node.js backend"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=18.20.8"
+  },
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
