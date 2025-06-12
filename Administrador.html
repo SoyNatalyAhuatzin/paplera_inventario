@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=Poppins" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -36,11 +37,11 @@
       right: 20px;
     }
     .user-info img {
-      width: 40px; /* Larger user icon */
+      width: 40px;
       height: 40px;
     }
     .user-info span {
-      font-size: 16px; /* Larger user name */
+      font-size: 16px;
       font-weight: 600;
     }
     .search-bar {
@@ -67,10 +68,10 @@
     }
     .icons {
       display: flex;
-      gap: 10px;
+      gap: 20px;
       position: absolute;
-      right: 120px; /* Position left of user name */
-      top: 15px; /* Align with user info */
+      right: 180px;
+      top: 15px;
       z-index: 10;
     }
     .icons img {
@@ -120,12 +121,17 @@
       width: 20px;
       height: 20px;
       display: inline-block;
-      flex-shrink: 0; /* Prevent icon shrinking */
+      flex-shrink: 0;
     }
     .menu li:last-child {
       border-bottom: none;
     }
     .menu li:hover {
+      background-color: #e05576;
+      color: white;
+      border-radius: 4px;
+    }
+    .menu li.active {
       background-color: #e05576;
       color: white;
       border-radius: 4px;
@@ -199,6 +205,42 @@
       cursor: pointer;
       color: #000000;
     }
+    .chart-container {
+      width: 100%;
+      max-width: 650px; /* Más espacio */
+      margin: 20px 0;
+    }
+    .update-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 6px 12px; /* Más pequeño */
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px; /* Más pequeño */
+      border-radius: 8px;
+      display: block;
+      margin: 10px auto;
+    }
+    .update-button:hover {
+      background-color: #b33c5e;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    .chart-grid-item {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+    .error-message {
+      color: #e05576;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -230,36 +272,36 @@
     <div class="menu">
       <div class="menu-items">
         <ul>
-          <li onclick="showContent('main')">
+          <li id="menu-main" onclick="showContent('main')" class="active">
             <img src="https://img.icons8.com/ios/20/000000/home--v1.png" alt="Main Icon">
             Menú Principal
           </li>
-          <li onclick="showContent('users')">
-            <img src="https://img.icons8.com/ios/20/000000/users.png" alt="Users Icon">
+          <li id="menu-users" onclick="showContent('users')">
+            <img src="https://img.icons8.com/ios-filled/20/000000/user-rights.png" alt="Users Icon">
             Gestión Usuarios
           </li>
-          <li onclick="showContent('reports')">
+          <li id="menu-reports" onclick="showContent('reports')">
             <img src="https://img.icons8.com/ios/20/000000/bar-chart.png" alt="Reports Icon">
             Reportes
           </li>
-          <li onclick="showContent('settings')">
+          <li id="menu-settings" onclick="showContent('settings')">
             <img src="https://img.icons8.com/ios/20/000000/settings--v1.png" alt="Settings Icon">
             Configuración
           </li>
-          <li onclick="showContent('activities')">
+          <li id="menu-activities" onclick="showContent('activities')">
             <img src="https://img.icons8.com/ios/20/000000/checklist.png" alt="Activities Icon">
             Actividades
           </li>
-          <li onclick="showContent('inventory')">
-            <img src="https://img.icons8.com/ios/20/000000/inventory.png" alt="Inventory Icon">
+          <li id="menu-inventory" onclick="showContent('inventory')">
+            <img src="https://img.icons8.com/ios-filled/20/000000/warehouse.png" alt="Inventory Icon">
             Control de Inventario
           </li>
         </ul>
       </div>
-      <button class="logout-button" onclick="logout()">< Cerrar Sesión</button>
+      <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
     </div>
-    <div class="content">
-      <h2>Bienvenido al Panel de Administración</h2>
+    <div class="content" id="contentArea">
+      <h2>Menú Principal</h2>
       <p>Selecciona una opción del menú para comenzar.</p>
       <div id="searchResults"></div>
     </div>
@@ -269,15 +311,159 @@
     window.onload = function() {
       document.getElementById('welcomeModal').style.display = 'flex';
       document.getElementById('userName').textContent = 'Juan Pérez'; // Replace with actual user data
+      showContent('main'); // Show main menu content with chart by default
     };
 
     function closeModal() {
       document.getElementById('welcomeModal').style.display = 'none';
     }
 
+    let inventoryChart = null;
+
+    async function fetchInventoryData() {
+      try {
+        const response = await fetch('/api/inventario');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log('Datos de inventario:', data); // Depuración
+        if (!data || data.length === 0) throw new Error('Datos vacíos');
+        return data.map(item => ({
+          ubicacion: item.ubicacion || 'Desconocido',
+          cantidad: Number(item.cantidad) || 0 // Asegurar número
+        }));
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+        document.getElementById('chartError')?.remove();
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'chartError';
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = 'Error al cargar la gráfica. Usando datos de respaldo.';
+        document.querySelector('.chart-container')?.appendChild(errorDiv);
+        return [
+          { ubicacion: 'Almacén Principal', cantidad: 100 },
+          { ubicacion: 'Sucursal Centro', cantidad: 200 },
+          { ubicacion: 'Tienda Norte', cantidad: 50 },
+          { ubicacion: 'Almacén Secundario', cantidad: 75 },
+          { ubicacion: 'Tienda Virtual', cantidad: 150 }
+        ]; // Datos de respaldo
+      }
+    }
+
+    async function renderInventoryChart() {
+      const canvas = document.getElementById('inventoryChart');
+      if (!canvas) {
+        console.error('Canvas no encontrado');
+        return;
+      }
+      const data = await fetchInventoryData();
+      const ctx = canvas.getContext('2d');
+      
+      if (inventoryChart) {
+        inventoryChart.destroy(); // Destruir gráfico existente
+      }
+
+      inventoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(item => item.ubicacion),
+          datasets: [{
+            label: 'Cantidad Disponible',
+            data: data.map(item => item.cantidad),
+            backgroundColor: [
+              '#e05576', // Almacén Principal (rosa)
+              '#ff7f0e', // Sucursal Centro (naranja)
+              '#2ca02c', // Tienda Norte (verde)
+              '#1f77b4', // Almacén Secundario (azul)
+              '#9467bd'  // Tienda Virtual (púrpura)
+            ],
+            borderColor: [
+              '#b33c5e', // Borde Almacén Principal
+              '#cc6400', // Borde Sucursal Centro
+              '#247824', // Borde Tienda Norte
+              '#175a8d', // Borde Almacén Secundario
+              '#704f8a'  // Borde Tienda Virtual
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad',
+                font: { size: 16, family: 'Poppins' }
+              },
+              ticks: { font: { size: 14 } }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Ubicación',
+                font: { size: 16, family: 'Poppins' }
+              },
+              ticks: {
+                font: { size: 8 }, // Más pequeño
+                maxRotation: 45,
+                minRotation: 45,
+                padding: 15 // Más espacio
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Inventario por Ubicación',
+              font: { size: 20, family: 'Bebas Neue' }
+            },
+            legend: {
+              labels: { font: { size: 14, family: 'Poppins' } }
+            }
+          }
+        }
+      });
+    }
+
+    async function updateChart() {
+      const data = await fetchInventoryData();
+      if (inventoryChart) {
+        inventoryChart.data.labels = data.map(item => item.ubicacion);
+        inventoryChart.data.datasets[0].data = data.map(item => item.cantidad);
+        inventoryChart.update();
+      }
+    }
+
     function showContent(section) {
       const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = `<h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2><p>Contenido para ${section} (en desarrollo).</p>`;
+      document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+      document.getElementById(`menu-${section}`).classList.add('active');
+
+      if (section === 'main') {
+        contentArea.innerHTML = `
+          <h2>Menú Principal</h2>
+          <div class="content-grid">
+            <div class="chart-grid-item">
+              <div class="chart-container">
+                <canvas id="inventoryChart"></canvas>
+                <button class="update-button" onclick="updateChart()">Actualizar</button>
+              </div>
+            </div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div id="searchResults"></div>
+        `;
+        setTimeout(renderInventoryChart, 0); // Asegurar que el canvas esté en el DOM
+      } else {
+        contentArea.innerHTML = `
+          <h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+          <p>Contenido para ${section} (en desarrollo).</p>
+          <div id="searchResults"></div>
+        `;
+      }
     }
 
     function logout() {

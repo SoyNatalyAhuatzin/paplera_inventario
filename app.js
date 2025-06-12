@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "sasa",
+  password: "TESE",
   database: "papelera_ciclico_prueba_1"
 });
 
