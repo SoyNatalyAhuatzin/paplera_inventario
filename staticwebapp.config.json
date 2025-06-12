@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/js_app.js",
+      "methods": ["GET", "POST"]
+    }
+  ],
+  "platform": {
+    "apiRuntime": "node:18"
+  }
+}
