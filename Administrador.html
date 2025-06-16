@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600&display=Poppins" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -33,7 +33,7 @@
       align-items: center;
       gap: 12px;
       position: absolute;
-      top: 10px;
+      top: 20px;
       right: 20px;
     }
     .user-info img {
@@ -71,7 +71,7 @@
       gap: 20px;
       position: absolute;
       right: 180px;
-      top: 15px;
+      top: 25px;
       z-index: 10;
     }
     .icons img {
@@ -146,25 +146,41 @@
       font-size: 14px;
       border-radius: 8px;
       text-align: center;
-      margin: 10px 20px;
+      margin: 10px 20px 0 20px;
     }
     .logout-button:hover {
       background-color: #b33c5e;
     }
     .content {
       flex: 1;
-      padding: 30px;
+      padding: 20px;
       overflow-y: auto;
       background-color: #ffffff;
       margin: 0;
     }
     .content h2 {
       font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      margin: 0 0 10px;
+    }
+    .content h3 {
+      font-family: 'Bebas Neue', sans-serif;
       font-size: 24px;
-      margin-top: 0;
+      margin: 20px 0 10px;
+    }
+    .content p {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    .chart-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      margin: 0 0 10px;
+      text-align: left;
     }
     .modal {
-      display: flex;
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -175,18 +191,24 @@
       align-items: center;
       z-index: 1000;
     }
+    .modal.show {
+      display: flex;
+    }
     .modal-content {
       background-color: #ffffff;
-      padding: 20px;
+      padding: 15px;
       border-radius: 8px;
-      width: 300px;
-      text-align: center;
+      width: 80%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
       position: relative;
+      text-align: center;
     }
     .modal-content h2 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 24px;
-      margin: 0 0 10px;
+      margin: 0 0 15px;
     }
     .modal-content img {
       width: 40px;
@@ -195,7 +217,7 @@
     }
     .modal-content p {
       font-size: 16px;
-      margin: 0 0 20px;
+      margin: 0 0 15px;
     }
     .close-button {
       position: absolute;
@@ -207,17 +229,18 @@
     }
     .chart-container {
       width: 100%;
-      max-width: 650px; /* Más espacio */
-      margin: 20px 0;
+      max-width: 650px;
+      margin: 20px 0 0 0;
+      min-height: 300px;
     }
     .update-button {
       background-color: #e05576;
       color: white;
       border: none;
-      padding: 6px 12px; /* Más pequeño */
+      padding: 6px 12px;
       cursor: pointer;
       font-family: 'Poppins', sans-serif;
-      font-size: 12px; /* Más pequeño */
+      font-size: 12px;
       border-radius: 8px;
       display: block;
       margin: 10px auto;
@@ -228,32 +251,367 @@
     .content-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
       gap: 20px;
+      margin-top: 0;
+      align-items: start;
     }
     .chart-grid-item {
       grid-column: 1 / 2;
-      grid-row: 1 / 2;
+      display: block;
+    }
+    .stock-container {
+      grid-column: 2 / 3;
+      background-color: #f8f8f8;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 650px;
+      margin-top: 0;
+      display: block;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .users-table-container, .permisos-table-container {
+      grid-column: 1 / 3;
+      margin-top: 20px;
+      max-width: 100%;
+      display: block;
     }
     .error-message {
       color: #e05576;
       font-size: 14px;
       text-align: center;
       margin-top: 10px;
+      display: none;
+    }
+    .users-table, .permisos-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+    }
+    .users-table th, .users-table td, .permisos-table th, .permisos-table td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    .users-table th, .permisos-table th {
+      background-color: #f8f8f8;
+      font-weight: 600;
+    }
+    .users-table tr:nth-child(even), .permisos-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .delete-icon {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+    .permisos-table .no-permiso {
+      color: #e05576;
+    }
+    .stock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .stock-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      margin: 0;
+    }
+    .view-more-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+    .view-more-button:hover {
+      background-color: #b33c5e;
+    }
+    .stock-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .stock-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .stock-item div {
+      flex: 1;
+    }
+    .stock-item-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .stock-item-percentage {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      color: #555;
+      margin: 5px 0 0;
+    }
+    .stock-error {
+      color: #e05576;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .product-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .product-card p {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    .product-card .product-name {
+      font-weight: 600;
+    }
+    .product-card .product-percentage {
+      font-size: 12px;
+      color: #555;
+    }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .action-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      border-radius: 8px;
+      margin: 0 25px;
+    }
+    .action-button:hover {
+      background-color: #b33c5e;
+    }
+    .action-button.active {
+      background-color: #b33c5e;
+    }
+    .modal-content label {
+      display: block;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin: 10px 0 5px;
+      text-align: left;
+    }
+    .modal-content select, .modal-content input[type="email"], .modal-content input[type="text"], .modal-content input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+    }
+    .modal-content input[type="email"], .modal-content input[type="text"], .modal-content input[type="password"] {
+      background-color: #f9f9f9;
+    }
+    .modal-content .radio-group {
+      margin: 15px 0;
+      text-align: left;
+    }
+    .modal-content .radio-group label {
+      display: inline-block;
+      margin-right: 20px;
+    }
+    .modal-content .radio-group input[type="radio"] {
+      margin-right: 5px;
+    }
+    .modal-content .save-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      border-radius: 8px;
+      display: block;
+      margin: 20px auto 0;
+    }
+    .modal-content .save-button:hover {
+      background-color: #b33c5e;
+    }
+    .modal-content .accept-button, .modal-content .cancel-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      border-radius: 8px;
+      margin: 10px 5px;
+    }
+    .modal-content .cancel-button {
+      background-color: #ccc;
+      color: #000;
+    }
+    .modal-content .accept-button:hover {
+      background-color: #b33c5e;
+    }
+    .modal-content .cancel-button:hover {
+      background-color: #aaa;
+    }
+    .permisos-table-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      margin: 20px 0 10px;
+    }
+    .permisos-edit-button {
+      background-color: #e05576;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .permisos-edit-button:hover {
+      background-color: #b33c5e;
+    }
+    .modal-content .checkbox-group {
+      margin: 15px 0;
+      text-align: left;
+    }
+    .modal-content .checkbox-group label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .modal-content .checkbox-group input[type="checkbox"] {
+      margin-right: 5px;
     }
   </style>
 </head>
 <body>
-  <!-- Modal -->
   <div id="welcomeModal" class="modal">
     <div class="modal-content">
       <span class="close-button" onclick="closeModal()">×</span>
       <img src="https://img.icons8.com/fluent/40/000000/happy.png" alt="Icono">
       <h2>¡Bienvenido admin!</h2>
-      <p>Estás en el panel de administración</p>
+      <p>Estás en el panel de administración.</p>
     </div>
   </div>
-  <!-- Main Content -->
+  <div id="productsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeProductsModal()">×</span>
+      <h2>Todos los Productos</h2>
+      <div id="productsGrid" class="products-grid"></div>
+      <div id="productsError" class="error-message">Error al cargar productos en el modal.</div>
+    </div>
+  </div>
+  <div id="editUserModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeEditUserModal()">×</span>
+      <h2>Editar usuario</h2>
+      <label for="userSelect">Nombre del usuario</label>
+      <select id="userSelect" onchange="loadUserData()">
+        <option value="">Seleccione un usuario</option>
+      </select>
+      <label for="userEmail">Correo</label>
+      <input type="email" id="userEmail" readonly>
+      <label>Rol</label>
+      <div class="radio-group">
+        <label><input type="radio" name="rol" value="admin"> Admin</label>
+        <label><input type="radio" name="rol" value="contador"> Contador</label>
+        <label><input type="radio" name="rol" value="cajero"> Cajero</label>
+        <label><input type="radio" name="rol" value="logistica"> Logística</label>
+      </div>
+      <button class="save-button" onclick="saveUserChanges()">Guardar Cambios</button>
+    </div>
+  </div>
+  <div id="createUserModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeCreateUserModal()">×</span>
+      <h2>Nuevo Usuario</h2>
+      <label for="newUserName">Nombre</label>
+      <input type="text" id="newUserName" required>
+      <label for="newUserEmail">Correo</label>
+      <input type="email" id="newUserEmail" placeholder="ej. nombre_usuario@papelera.com" oninput="updateEmailDisplay()" required>
+      <label for="newUserPassword">Contraseña</label>
+      <input type="password" id="newUserPassword" required>
+      <label for="newUserRol">Rol</label>
+      <select id="newUserRol" required>
+        <option value="">Seleccione un rol</option>
+        <option value="admin">Admin</option>
+        <option value="cajero">Cajero</option>
+        <option value="logistica">Logística</option>
+        <option value="contador">Contador</option>
+      </select>
+      <button class="save-button" onclick="saveNewUser()">Guardar</button>
+    </div>
+  </div>
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeSuccessModal()">×</span>
+      <h2>Éxito</h2>
+      <p>Los cambios se realizaron exitosamente.</p>
+      <button class="accept-button" onclick="closeSuccessModal()">Aceptar</button>
+    </div>
+  </div>
+  <div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeDeleteConfirmModal()">×</span>
+      <h2>AVISO</h2>
+      <p id="deleteConfirmMessage">¿Estás seguro de que quieres borrar este usuario?</p>
+      <button class="accept-button" onclick="confirmDelete()">Aceptar</button>
+      <button class="cancel-button" onclick="closeDeleteConfirmModal()">Cancelar</button>
+    </div>
+  </div>
+  <div id="editPermisosModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeEditPermisosModal()">×</span>
+      <h2>Editar Permisos</h2>
+      <label for="permisosRolSelect">Rol</label>
+      <select id="permisosRolSelect" onchange="loadPermisosData()">
+        <option value="">Seleccione un rol</option>
+        <option value="admin">Admin</option>
+        <option value="cajero">Cajero</option>
+        <option value="contador">Contador</option>
+        <option value="logistica">Logística</option>
+      </select>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="consultarStock"> Consultar Stock</label>
+        <label><input type="checkbox" id="registrarEntrada"> Registrar Entrada</label>
+        <label><input type="checkbox" id="registrarSalidas"> Registrar Salidas</label>
+      </div>
+      <button class="save-button" onclick="savePermisosChanges()">Guardar Cambios</button>
+    </div>
+  </div>
   <div class="header">
     <div class="search-bar">
       <img src="https://img.icons8.com/ios-filled/20/000000/search--v1.png" alt="Search Icon">
@@ -261,10 +619,10 @@
     </div>
     <div class="icons">
       <img src="https://img.icons8.com/ios/24/000000/speech-bubble--v2.png" alt="Messages" onclick="alert('Mensajes no implementados')">
-      <img src="https://img.icons8.com/ios/24/000000/bell--v3.png" alt="Notifications" onclick="alert('Notificaciones no implementados')">
+      <img src="https://img.icons8.com/ios/24/000000/bell--v3.png" alt="Notifications" onclick="alert('Notificaciones no implementadas')">
     </div>
     <div class="user-info">
-      <span id="userName">Juan Pérez</span>
+      <span id="userName"></span>
       <img src="https://img.icons8.com/ios-glyphs/40/000000/user--v1.png" alt="User Icon">
     </div>
   </div>
@@ -285,211 +643,1026 @@
             Reportes
           </li>
           <li id="menu-settings" onclick="showContent('settings')">
-            <img src="https://img.icons8.com/ios/20/000000/settings--v1.png" alt="Settings Icon">
+            <img src="https://img.icons8.com/ios/20/000000/settings" alt="Settings Icon">
             Configuración
           </li>
           <li id="menu-activities" onclick="showContent('activities')">
             <img src="https://img.icons8.com/ios/20/000000/checklist.png" alt="Activities Icon">
             Actividades
           </li>
-          <li id="menu-inventory" onclick="showContent('inventory')">
+          <li id="menu-inventario" onclick="showContent('inventario')">
             <img src="https://img.icons8.com/ios-filled/20/000000/warehouse.png" alt="Inventory Icon">
-            Control de Inventario
+            Control de Inventarios
           </li>
         </ul>
       </div>
       <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
     </div>
-    <div class="content" id="contentArea">
+    <div class="content" id="content">
       <h2>Menú Principal</h2>
-      <p>Selecciona una opción del menú para comenzar.</p>
+      <div class="content-grid">
+        <div class="chart-grid-item">
+          <div class="chart-title">Inventario por Ubicación</div>
+          <div class="chart-container">
+            <canvas id="inventoryChart"></canvas>
+            <button class="update-button" onclick="updateChart()">Actualizar</button>
+            <div id="chartError" class="error-message">Error al cargar la gráfica.</div>
+          </div>
+        </div>
+        <div class="stock-container">
+          <div class="stock-header">
+            <div class="stock-title">Stock Total</div>
+            <button class="view-more-button" onclick="showProductsModal()">Ver más</button>
+          </div>
+          <div id="stock-info"></div>
+          <div id="stock-error" class="stock-error">Error al cargar productos.</div>
+        </div>
+        <div class="users-table-container">
+          <div class="users-table-title">Usuarios Activos</div>
+          <table class="users-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Activo</th>
+                <th>Hora de Inicio</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="usersError" class="error-message">Error al cargar usuarios.</div>
+        </div>
+      </div>
       <div id="searchResults"></div>
     </div>
   </div>
   <script>
-    // Show modal and set user info on page load
-    window.onload = function() {
-      document.getElementById('welcomeModal').style.display = 'flex';
-      document.getElementById('userName').textContent = 'Juan Pérez'; // Replace with actual user data
-      showContent('main'); // Show main menu content with chart by default
-    };
+    let isDeleteMode = false;
+    let userToDelete = null;
 
-    function closeModal() {
-      document.getElementById('welcomeModal').style.display = 'none';
+    function initializePage() {
+      console.log('Inicializando página...');
+      const modal = document.getElementById('welcomeModal');
+      const userName = document.getElementById('userName');
+      if (!modal || !userName) {
+        console.error('Elementos no encontrados: modal=', !!modal, 'userName=', !!userName);
+        return;
+      }
+      const urlParams = new URLSearchParams(window.location.search);
+      const name = urlParams.get('name') || 'Usuario';
+      modal.classList.add('show');
+      userName.textContent = decodeURIComponent(name);
+      console.log('Modal activada, nombre establecido:', name);
+      showContent('main');
     }
 
-    let inventoryChart = null;
+    function closeModal() {
+      console.log('Cerrando modal de bienvenida...');
+      const modal = document.getElementById('welcomeModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        showContent('main');
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    function showProductsModal() {
+      console.log('Mostrando modal de productos...');
+      const modal = document.getElementById('productsModal');
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        renderProductsModal();
+      } else {
+        console.error('Modal de productos no encontrado');
+      }
+    }
+
+    function closeProductsModal() {
+      console.log('Cerrando modal de productos...');
+      const modal = document.getElementById('productsModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    function showEditUserModal() {
+      console.log('Mostrando modal de editar usuario...');
+      const modal = document.getElementById('editUserModal');
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        populateUserSelect();
+      } else {
+        console.error('Modal de editar usuario no encontrado');
+        alert('Error al abrir el modal de edición.');
+      }
+    }
+
+    function closeEditUserModal() {
+      console.log('Cerrando modal de editar usuario...');
+      const modal = document.getElementById('editUserModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.getElementById('userSelect').value = '';
+        document.getElementById('userEmail').value = '';
+        document.querySelectorAll('input[name="rol"]').forEach(input => input.checked = false);
+        console.log('Modal cerrado, campos reseteados');
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    function showCreateUserModal() {
+      console.log('Mostrando modal de crear usuario...');
+      const modal = document.getElementById('createUserModal');
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserEmail').value = '';
+        document.getElementById('newUserPassword').value = '';
+        document.getElementById('newUserRol').value = '';
+        updateEmailDisplay();
+      } else {
+        console.error('Modal de crear usuario no encontrado');
+        alert('Error al abrir el modal de creación.');
+      }
+    }
+
+    function closeCreateUserModal() {
+      console.log('Cerrando modal de crear usuario...');
+      const modal = document.getElementById('createUserModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserEmail').value = '';
+        document.getElementById('newUserPassword').value = '';
+        document.getElementById('newUserRol').value = '';
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    function updateEmailDisplay() {
+      const emailInput = document.getElementById('newUserEmail');
+      let value = emailInput.value.replace('@papelera.com', '').trim();
+      emailInput.value = value ? `${value}@papelera.com` : '';
+    }
+
+    async function saveNewUser() {
+      console.log('Guardando nuevo usuario...');
+      const name = document.getElementById('newUserName').value.trim();
+      const emailInput = document.getElementById('newUserEmail').value.trim();
+      const password = document.getElementById('newUserPassword').value;
+      const rol = document.getElementById('newUserRol').value;
+      const email = emailInput.endsWith('@papelera.com') ? emailInput : `${emailInput}@papelera.com`;
+
+      if (!name || !emailInput || !password || !rol) {
+        alert('Por favor, complete todos los campos.');
+        console.log('Campos incompletos:', { name, emailInput, password, rol });
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: name, email, password, rol })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+        }
+        console.log('Usuario creado exitosamente');
+        closeCreateUserModal();
+        showSuccessModal();
+        showContent('users');
+      } catch (error) {
+        console.error('Error al crear usuario:', error);
+        alert(`Error al crear usuario: ${error.message}`);
+      }
+    }
+
+    function showSuccessModal() {
+      console.log('Mostrando modal de éxito...');
+      const modal = document.getElementById('successModal');
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+      } else {
+        console.error('Modal de éxito no encontrado');
+        alert('Error al mostrar confirmación de éxito.');
+      }
+    }
+
+    function closeSuccessModal() {
+      console.log('Cerrando modal de éxito...');
+      const successModal = document.getElementById('successModal');
+      const editModal = document.getElementById('editUserModal');
+      if (successModal) {
+        successModal.classList.remove('show');
+        successModal.style.display = 'none';
+      }
+      if (editModal) {
+        editModal.classList.remove('show');
+        editModal.style.display = 'none';
+        document.getElementById('userSelect').value = '';
+        document.getElementById('userEmail').value = '';
+        document.querySelectorAll('input[name="rol"]').forEach(input => input.checked = false);
+      }
+      showContent('users');
+      console.log('Modales cerrados, tabla actualizada');
+    }
+
+    function showDeleteConfirmModal(userId, userName) {
+      console.log(`Mostrando modal de confirmación de eliminación para usuario ID: ${userId}`);
+      const modal = document.getElementById('deleteConfirmModal');
+      const message = document.getElementById('deleteConfirmMessage');
+      if (modal && message) {
+        userToDelete = userId;
+        message.textContent = `¿Estás seguro de que quieres borrar al usuario ${userName}?`;
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+      } else {
+        console.error('Modal de confirmación no encontrado');
+        alert('Error al mostrar confirmación de eliminación.');
+      }
+    }
+
+    function closeDeleteConfirmModal() {
+      console.log('Cerrando modal de confirmación de eliminación...');
+      const modal = document.getElementById('deleteConfirmModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        userToDelete = null;
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    async function confirmDelete() {
+      console.log(`Confirmando eliminación de usuario ID: ${userToDelete}`);
+      if (!userToDelete) {
+        console.error('No se seleccionó usuario para eliminar');
+        alert('No se seleccionó ningún usuario para eliminar.');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/usuario/${userToDelete}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(`Error: ${data.error || 'No se pudo eliminar el usuario'} (status: ${response.status})`);
+        }
+        console.log('Usuario eliminado exitosamente:', data.message);
+        closeDeleteConfirmModal();
+        isDeleteMode = false;
+        document.querySelector('#deleteButton')?.classList.remove('active');
+        renderAllUsersTable();
+      } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        alert(`No se pudo eliminar el usuario: ${error.message}`);
+      }
+    }
+
+    function toggleDeleteMode() {
+      isDeleteMode = !isDeleteMode;
+      const deleteButton = document.getElementById('deleteButton');
+      if (deleteButton) {
+        deleteButton.classList.toggle('active', isDeleteMode);
+      }
+      renderAllUsersTable();
+    }
+
+    async function fetchPermisos() {
+      console.log('Obteniendo permisos...');
+      try {
+        const response = await fetch('/api/permisos');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const permisos = await response.json();
+        console.log('Permisos recibidos:', permisos);
+        return permisos;
+      } catch (error) {
+        console.error('Error al obtener permisos:', error);
+        document.getElementById('permisosError').style.display = 'inline-block';
+        return [
+          { rol: 'admin', consultar_stock: true, registrar_entrada: true, registrar_salidas: true },
+          { rol: 'cajero', consultar_stock: true, registrar_entrada: false, registrar_salidas: true },
+          { rol: 'contador', consultar_stock: true, registrar_entrada: false, registrar_salidas: false },
+          { rol: 'logistica', consultar_stock: true, registrar_entrada: true, registrar_salidas: true }
+        ];
+      }
+    }
+
+    async function renderPermisosTable() {
+      console.log('Renderizando tabla de permisos...');
+      const tbody = document.querySelector('#permisosTable tbody');
+      const errorDiv = document.getElementById('permisosError');
+      if (!tbody || !errorDiv) {
+        console.error('Elementos no encontrados: tbody=', !!tbody, 'errorDiv=', !!errorDiv);
+        errorDiv.style.display = 'inline-block';
+        return;
+      }
+      const permisos = await fetchPermisos();
+      tbody.innerHTML = '';
+      if (permisos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">No hay permisos registrados.</td></tr>';
+        console.log('No hay permisos para mostrar');
+        return;
+      }
+      permisos.forEach(permiso => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${permiso.rol.charAt(0).toUpperCase() + permiso.rol.slice(1)}</td>
+          <td>${permiso.consultar_stock ? '✅' : '<span class="no-permiso">❌</span>'}</td>
+          <td>${permiso.registrar_entrada ? '✅' : '<span class="no-permiso">❌</span>'}</td>
+          <td>${permiso.registrar_salidas ? '✅' : '<span class="no-permiso">❌</span>'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+      console.log('Tabla de permisos renderizada con', permisos.length, 'filas');
+    }
+
+    function showEditPermisosModal() {
+      console.log('Mostrando modal de editar permisos...');
+      const modal = document.getElementById('editPermisosModal');
+      if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        document.getElementById('permisosRolSelect').value = '';
+        document.getElementById('consultarStock').checked = false;
+        document.getElementById('registrarEntrada').checked = false;
+        document.getElementById('registrarSalidas').checked = false;
+      } else {
+        console.error('Modal de editar permisos no encontrado');
+        alert('Error al abrir el modal de edición de permisos.');
+      }
+    }
+
+    function closeEditPermisosModal() {
+      console.log('Cerrando modal de editar permisos...');
+      const modal = document.getElementById('editPermisosModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.getElementById('permisosRolSelect').value = '';
+        document.getElementById('consultarStock').checked = false;
+        document.getElementById('registrarEntrada').checked = false;
+        document.getElementById('registrarSalidas').checked = false;
+      } else {
+        console.error('Modal no encontrada');
+      }
+    }
+
+    async function loadPermisosData() {
+      console.log('Cargando datos de permisos...');
+      const rolSelect = document.getElementById('permisosRolSelect');
+      const consultarStock = document.getElementById('consultarStock');
+      const registrarEntrada = document.getElementById('registrarEntrada');
+      const registrarSalidas = document.getElementById('registrarSalidas');
+      if (!rolSelect || !consultarStock || !registrarEntrada || !registrarSalidas) {
+        console.error('Elementos no encontrados');
+        alert('Error al cargar los elementos del formulario.');
+        return;
+      }
+      const rol = rolSelect.value;
+      if (!rol) {
+        consultarStock.checked = false;
+        registrarEntrada.checked = false;
+        registrarSalidas.checked = false;
+        console.log('No se seleccionó rol, campos limpiados');
+        return;
+      }
+      try {
+        const permisos = await fetchPermisos();
+        const permiso = permisos.find(p => p.rol === rol);
+        if (permiso) {
+          consultarStock.checked = permiso.consultar_stock;
+          registrarEntrada.checked = permiso.registrar_entrada;
+          registrarSalidas.checked = permiso.registrar_salidas;
+          console.log('Datos de permisos cargados:', permiso);
+        } else {
+          console.warn('No se encontraron permisos para el rol:', rol);
+          consultarStock.checked = false;
+          registrarEntrada.checked = false;
+          registrarSalidas.checked = false;
+        }
+      } catch (error) {
+        console.error('Error al cargar datos de permisos:', error);
+        alert('Error al cargar datos de permisos.');
+      }
+    }
+
+    async function savePermisosChanges() {
+      console.log('Guardando cambios de permisos...');
+      const rolSelect = document.getElementById('permisosRolSelect');
+      const consultarStock = document.getElementById('consultarStock');
+      const registrarEntrada = document.getElementById('registrarEntrada');
+      const registrarSalidas = document.getElementById('registrarSalidas');
+      if (!rolSelect || !consultarStock || !registrarEntrada || !registrarSalidas) {
+        console.error('Elementos no encontrados');
+        alert('Error al guardar los cambios.');
+        return;
+      }
+      const rol = rolSelect.value;
+      if (!rol) {
+        alert('Por favor, seleccione un rol.');
+        return;
+      }
+      const permisos = {
+        consultar_stock: consultarStock.checked,
+        registrar_entrada: registrarEntrada.checked,
+        registrar_salidas: registrarSalidas.checked
+      };
+      try {
+        const response = await fetch(`/api/permisos/${rol}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(permisos)
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+        }
+        console.log('Permisos guardados exitosamente');
+        closeEditPermisosModal();
+        showSuccessModal();
+        renderPermisosTable();
+      } catch (error) {
+        console.error('Error al guardar permisos:', error);
+        alert(`Error al guardar permisos: ${error.message}`);
+      }
+    }
+
+    async function showContent(section) {
+      console.log(`Mostrando contenido de sección: ${section}`);
+      const content = document.getElementById('content');
+      const menuItems = document.querySelectorAll('.menu li');
+      if (!content) {
+        console.error('Contenedor de contenido no encontrado');
+        return;
+      }
+      menuItems.forEach(item => item.classList.remove('active'));
+      document.getElementById(`menu-${section}`)?.classList.add('active');
+
+      if (section === 'main') {
+        content.innerHTML = `
+          <h2>Menú Principal</h2>
+          <div class="content-grid">
+            <div class="chart-grid-item">
+              <div class="chart-title">Inventario por Ubicación</div>
+              <div class="chart-container">
+                <canvas id="inventoryChart"></canvas>
+                <button class="update-button" onclick="updateChart()">Actualizar</button>
+                <div id="chartError" class="error-message">Error al cargar la gráfica.</div>
+              </div>
+            </div>
+            <div class="stock-container">
+              <div class="stock-header">
+                <div class="stock-title">Stock Total</div>
+                <button class="view-more-button" onclick="showProductsModal()">Ver más</button>
+              </div>
+              <div id="stock-info"></div>
+              <div id="stock-error" class="stock-error">Error al cargar productos.</div>
+            </div>
+            <div class="users-table-container">
+              <div class="users-table-title">Usuarios Activos</div>
+              <table class="users-table" id="usersTable">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Activo</th>
+                    <th>Hora de Inicio</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <div id="usersError" class="error-message">Error al cargar usuarios.</div>
+            </div>
+          </div>
+          <div id="searchResults"></div>
+        `;
+        renderInventoryChart();
+        renderStockInfo();
+        renderUsersTable();
+      } else if (section === 'users') {
+        content.innerHTML = `
+          <h2>Gestión Usuarios</h2>
+          <div class="users-table-container">
+            <div class="users-table-title">Todos los Usuarios</div>
+            <table class="users-table" id="allUsersTable">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Correo</th>
+                  <th>Rol</th>
+                  <th>Activo</th>
+                  <th>Fecha de Creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div id="allUsersError" class="error-message">Error al cargar usuarios.</div>
+            <div class="action-buttons">
+              <button id="createButton" class="action-button" onclick="showCreateUserModal()">Crear</button>
+              <button id="editButton" class="action-button" onclick="showEditUserModal()">Editar</button>
+              <button id="deleteButton" class="action-button" onclick="toggleDeleteMode()">Eliminar</button>
+            </div>
+          </div>
+          <div class="permisos-table-container">
+            <div class="permisos-table-title">PERMISOS</div>
+            <table class="permisos-table" id="permisosTable">
+              <thead>
+                <tr>
+                  <th>Rol</th>
+                  <th>Consultar Stock</th>
+                  <th>Registrar Entrada</th>
+                  <th>Registrar Salidas</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div id="permisosError" class="error-message">Error al cargar permisos.</div>
+            <button class="permisos-edit-button" onclick="showEditPermisosModal()">Editar</button>
+          </div>
+        `;
+        renderAllUsersTable();
+        renderPermisosTable();
+      } else if (section === 'reports') {
+        content.innerHTML = '<h2>Reportes</h2><p>Contenido de reportes en desarrollo.</p>';
+      } else if (section === 'settings') {
+        content.innerHTML = `
+          <h2>Configuración</h2>
+          <h3>Datos de la Empresa</h3>
+          <p>Nombre: Papelera del Norte S.A. de C.V.</p>
+          <p>Dirección: Av. Industrial 123, Col. Centro, Monterrey, N.L., México</p>
+          <p>Teléfono: +52 81 1234 5678</p>
+          <p>Correo: contacto@papeleradelnorte.com</p>
+          <p>RFC: PNO123456789</p>
+          <h3>Términos y Condiciones</h3>
+          <p>1. Todos los usuarios deben cumplir con las políticas de uso del sistema establecidas por Papelera del Norte.</p>
+          <p>2. El acceso al sistema está restringido a personal autorizado con credenciales válidas.</p>
+          <p>3. Los datos ingresados en el sistema son confidenciales y no deben compartirse con terceros sin autorización.</p>
+          <p>4. Papelera del Norte se reserva el derecho de suspender cuentas por mal uso o violación de las políticas.</p>
+          <p>5. Los cambios en el sistema deben ser aprobados por un administrador autorizado.</p>
+          <p>6. El uso del sistema implica la aceptación de estos términos y condiciones.</p>
+        `;
+      } else if (section === 'activities') {
+        content.innerHTML = '<h2>Actividades</h2><p>Contenido de actividades en desarrollo.</p>';
+      } else if (section === 'inventario') {
+        content.innerHTML = '<h2>Control de Inventarios</h2><p>Contenido de inventario en desarrollo.</p>';
+      }
+    }
+
+    async function renderAllUsersTable() {
+      console.log('Renderizando tabla de todos los usuarios...');
+      const tbody = document.querySelector('#allUsersTable tbody');
+      if (!tbody) {
+        console.error('Tbody de tabla no encontrado');
+        document.getElementById('allUsersError').style.display = 'inline-block';
+        return;
+      }
+      const users = await fetchAllUsers();
+      tbody.innerHTML = '';
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">No hay usuarios registrados.</td></tr>';
+        console.log('No hay usuarios para mostrar');
+        return;
+      }
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.nombre}</td>
+          <td>${user.email}</td>
+          <td>${user.rol}</td>
+          <td>${user.activo}</td>
+          <td>${user.fecha_creacion}</td>
+          <td>${
+            isDeleteMode
+              ? `<img src="https://img.icons8.com/ios-filled/20/e05576/trash.png" alt="Delete" class="delete-icon" onclick="showDeleteConfirmModal(${user.usuario_id}, '${user.nombre}')">`
+              : '-'
+          }</td>
+        `;
+        tbody.appendChild(row);
+      });
+      console.log('Tabla de usuarios renderizada con', users.length, 'filas');
+    }
+
+    async function fetchAllUsers() {
+      console.log('Obteniendo todos los usuarios...');
+      try {
+        const response = await fetch('/api/usuarios');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const users = await response.json();
+        console.log('Datos de todos los usuarios:', users);
+        if (!users || users.length === 0) throw new Error('No hay usuarios');
+        return users;
+      } catch (error) {
+        console.error('Error al obtener todos los usuarios:', error);
+        document.getElementById('allUsersError').style.display = 'inline-block';
+        return [];
+      }
+    }
+
+    async function populateUserSelect() {
+      console.log('Poblando selector de usuarios...');
+      const userSelect = document.getElementById('userSelect');
+      if (!userSelect) {
+        console.error('Selector de usuarios no encontrado');
+        alert('Error al cargar el selector de usuarios.');
+        return;
+      }
+      try {
+        const users = await fetchAllUsers();
+        userSelect.innerHTML = '<option value="">Seleccione un usuario</option>';
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.usuario_id;
+          option.textContent = user.nombre;
+          userSelect.appendChild(option);
+        });
+        console.log('Selector de usuarios poblado con', users.length, 'opciones');
+      } catch (error) {
+        console.error('Error al poblar selector:', error);
+        alert('Error al cargar la lista de usuarios.');
+      }
+    }
+
+    async function loadUserData() {
+      console.log('Cargando datos de usuario...');
+      const userSelect = document.getElementById('userSelect');
+      const userEmail = document.getElementById('userEmail');
+      const radioButtons = document.querySelectorAll('input[name="rol"]');
+      if (!userSelect || !userEmail) {
+        console.error('Elementos no encontrados: userSelect=', !!userSelect, 'userEmail=', !!userEmail);
+        alert('Error al cargar los elementos del formulario.');
+        return;
+      }
+      const usuarioId = userSelect.value;
+      if (!usuarioId) {
+        userEmail.value = '';
+        radioButtons.forEach(input => input.checked = false);
+        console.log('No se seleccionó usuario, campos limpiados');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/usuario/${usuarioId}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const user = await response.json();
+        userEmail.value = user.email;
+        radioButtons.forEach(input => {
+          input.checked = input.value === user.rol;
+        });
+        console.log('Datos de usuario cargados:', user);
+      } catch (error) {
+        console.error('Error al cargar datos de usuario:', error);
+        alert('Error al cargar datos del usuario.');
+      }
+    }
+
+    async function saveUserChanges() {
+      console.log('Guardando cambios de usuario...');
+      const userSelect = document.getElementById('userSelect');
+      const userEmail = document.getElementById('userEmail');
+      const selectedRol = document.querySelector('input[name="rol"]:checked');
+      if (!userSelect || !userEmail || !selectedRol) {
+        console.error('Elementos no encontrados o no seleccionados');
+        alert('Por favor, seleccione un usuario y un rol.');
+        return;
+      }
+      const usuarioId = userSelect.value;
+      const email = userEmail.value;
+      const rol = selectedRol.value;
+      if (!usuarioId || !email || !rol) {
+        alert('Por favor, complete todos los campos.');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/usuario/${usuarioId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, rol })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+        }
+        console.log('Usuario actualizado exitosamente');
+        closeEditUserModal();
+        showSuccessModal();
+        renderAllUsersTable();
+      } catch (error) {
+        console.error('Error al guardar cambios:', error);
+        alert(`Error al guardar cambios: ${error.message}`);
+      }
+    }
+
+    async function searchUsers() {
+      console.log('Buscando usuarios...');
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('searchResults');
+      if (!resultsDiv) {
+        console.error('Contenedor de resultados de búsqueda no encontrado');
+        return;
+      }
+      if (query.length < 3) {
+        resultsDiv.innerHTML = '';
+        console.log('Consulta demasiado corta');
+        return;
+      }
+      try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const results = await response.json();
+        console.log('Resultados de búsqueda:', results);
+        if (results.length === 0) {
+          resultsDiv.innerHTML = '<p>No se encontraron resultados.</p>';
+          return;
+        }
+        resultsDiv.innerHTML = '<h3>Resultados de búsqueda:</h3><ul>' +
+          results.map(item => `<li>${item.nombre} (${item.email})</li>`).join('') +
+          '</ul>';
+      } catch (error) {
+        console.error('Error en la búsqueda:', error);
+        resultsDiv.innerHTML = '<p>Error al realizar la búsqueda.</p>';
+      }
+    }
+
+    async function fetchStockData() {
+      console.log('Obteniendo datos de stock...');
+      try {
+        const response = await fetch('/api/stock');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log('Datos de stock recibidos:', data);
+        if (!data || data.length === 0) throw new Error('No hay datos de stock');
+        return data.map(item => ({
+          nombre: item.nombre || 'Producto desconocido',
+          cantidad: Number(item.cantidad) || 0,
+          imagen: item.imagen || 'https://via.placeholder.com/50'
+        }));
+      } catch (error) {
+        console.error('Error al obtener datos de stock:', error);
+        document.getElementById('stock-error').style.display = 'inline-block';
+        return [
+          { nombre: 'Producto A', cantidad: 100, imagen: 'https://via.placeholder.com/50' },
+          { nombre: 'Producto B', cantidad: 200, imagen: 'https://via.placeholder.com/50' },
+          { nombre: 'Producto C', cantidad: 50, imagen: 'https://via.placeholder.com/50' }
+        ];
+      }
+    }
+
+    async function renderStockInfo() {
+      console.log('Renderizando información de stock...');
+      const stockInfo = document.getElementById('stock-info');
+      if (!stockInfo) {
+        console.error('Contenedor de stock no encontrado');
+        document.getElementById('stock-error').style.display = 'inline-block';
+        return;
+      }
+      const data = await fetchStockData();
+      stockInfo.innerHTML = '';
+      if (data.length === 0) {
+        stockInfo.innerHTML = '<p>No hay productos en stock.</p>';
+        console.log('No hay productos para mostrar');
+        return;
+      }
+      data.slice(0, 3).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'stock-item';
+        div.innerHTML = `
+          <img src="${item.imagen}" alt="${item.nombre}">
+          <div>
+            <p class="stock-item-name">${item.nombre}</p>
+            <p class="stock-item-percentage">${item.cantidad} unidades</p>
+          </div>
+        `;
+        stockInfo.appendChild(div);
+      });
+      console.log('Información de stock renderizada con', data.length, 'elementos');
+    }
+
+    async function renderProductsModal() {
+      console.log('Renderizando modal de productos...');
+      const productsGrid = document.getElementById('productsGrid');
+      if (!productsGrid) {
+        console.error('Contenedor de productos no encontrado');
+        document.getElementById('productsError').style.display = 'inline-block';
+        return;
+      }
+      const data = await fetchStockData();
+      productsGrid.innerHTML = '';
+      if (data.length === 0) {
+        productsGrid.innerHTML = '<p>No hay productos disponibles.</p>';
+        console.log('No hay productos para mostrar en modal');
+        return;
+      }
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${item.imagen}" alt="${item.nombre}">
+          <p class="product-name">${item.nombre}</p>
+          <p class="product-percentage">${item.cantidad} unidades</p>
+        `;
+        productsGrid.appendChild(card);
+      });
+      console.log('Modal de productos renderizado con', data.length, 'elementos');
+    }
 
     async function fetchInventoryData() {
+      console.log('Obteniendo datos de inventario...');
       try {
         const response = await fetch('/api/inventario');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        console.log('Datos de inventario:', data); // Depuración
+        console.log('Datos de inventario recibidos:', data);
         if (!data || data.length === 0) throw new Error('Datos vacíos');
         return data.map(item => ({
           ubicacion: item.ubicacion || 'Desconocido',
-          cantidad: Number(item.cantidad) || 0 // Asegurar número
+          cantidad: Number(item.cantidad) || 0
         }));
       } catch (error) {
-        console.error('Error al obtener datos:', error);
-        document.getElementById('chartError')?.remove();
-        const errorDiv = document.createElement('div');
-        errorDiv.id = 'chartError';
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = 'Error al cargar la gráfica. Usando datos de respaldo.';
-        document.querySelector('.chart-container')?.appendChild(errorDiv);
+        console.error('Error al obtener datos de inventario:', error);
+        document.getElementById('chartError').style.display = 'inline-block';
         return [
           { ubicacion: 'Almacén Principal', cantidad: 100 },
           { ubicacion: 'Sucursal Centro', cantidad: 200 },
           { ubicacion: 'Tienda Norte', cantidad: 50 },
           { ubicacion: 'Almacén Secundario', cantidad: 75 },
           { ubicacion: 'Tienda Virtual', cantidad: 150 }
-        ]; // Datos de respaldo
+        ];
       }
     }
 
     async function renderInventoryChart() {
+      console.log('Renderizando gráfica de inventario...');
       const canvas = document.getElementById('inventoryChart');
       if (!canvas) {
-        console.error('Canvas no encontrado');
+        console.error('Canvas para gráfica no encontrado');
+        document.getElementById('chartError').style.display = 'inline-block';
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.error('Contexto 2D no disponible');
+        document.getElementById('chartError').style.display = 'inline-block';
         return;
       }
       const data = await fetchInventoryData();
-      const ctx = canvas.getContext('2d');
-      
+      console.log('Datos para gráfica:', data);
+
       if (inventoryChart) {
-        inventoryChart.destroy(); // Destruir gráfico existente
+        inventoryChart.destroy();
+        console.log('Gráfica anterior destruida');
       }
 
-      inventoryChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: data.map(item => item.ubicacion),
-          datasets: [{
-            label: 'Cantidad Disponible',
-            data: data.map(item => item.cantidad),
-            backgroundColor: [
-              '#e05576', // Almacén Principal (rosa)
-              '#ff7f0e', // Sucursal Centro (naranja)
-              '#2ca02c', // Tienda Norte (verde)
-              '#1f77b4', // Almacén Secundario (azul)
-              '#9467bd'  // Tienda Virtual (púrpura)
-            ],
-            borderColor: [
-              '#b33c5e', // Borde Almacén Principal
-              '#cc6400', // Borde Sucursal Centro
-              '#247824', // Borde Tienda Norte
-              '#175a8d', // Borde Almacén Secundario
-              '#704f8a'  // Borde Tienda Virtual
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Cantidad',
-                font: { size: 16, family: 'Poppins' }
-              },
-              ticks: { font: { size: 14 } }
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Ubicación',
-                font: { size: 16, family: 'Poppins' }
-              },
-              ticks: {
-                font: { size: 8 }, // Más pequeño
-                maxRotation: 45,
-                minRotation: 45,
-                padding: 15 // Más espacio
-              }
-            }
+      try {
+        inventoryChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.map(item => item.ubicacion),
+            datasets: [{
+              label: 'Cantidad Disponible',
+              data: data.map(item => item.cantidad),
+              backgroundColor: ['#e05576', '#ff7f0e', '#2ca02c', '#1f77b4', '#9467bd'],
+              borderColor: ['#b33c5e', '#cc6400', '#247824', '#175a8d', '#704f8a'],
+              borderWidth: 1
+            }]
           },
-          plugins: {
-            title: {
-              display: true,
-              text: 'Inventario por Ubicación',
-              font: { size: 20, family: 'Bebas Neue' }
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: Math.max(...data.map(item => item.cantidad), 100) + 20,
+                ticks: { stepSize: 50, font: { size: 14, family: 'Poppins' } }
+              },
+              x: {
+                ticks: { font: { size: 12, family: 'Poppins' }, maxRotation: 45, minRotation: 45 }
+              }
             },
-            legend: {
-              labels: { font: { size: 14, family: 'Poppins' } }
-            }
+            plugins: { legend: { display: false } }
           }
-        }
-      });
+        });
+        console.log('Gráfica renderizada correctamente');
+      } catch (error) {
+        console.error('Error al renderizar gráfica:', error);
+        document.getElementById('chartError').style.display = 'inline-block';
+      }
     }
 
     async function updateChart() {
+      console.log('Actualizando gráfica...');
       const data = await fetchInventoryData();
       if (inventoryChart) {
         inventoryChart.data.labels = data.map(item => item.ubicacion);
         inventoryChart.data.datasets[0].data = data.map(item => item.cantidad);
         inventoryChart.update();
+        console.log('Gráfica actualizada');
+      } else {
+        console.warn('No hay gráfica para actualizar');
+        renderInventoryChart();
       }
     }
 
-    function showContent(section) {
-      const contentArea = document.getElementById('contentArea');
-      document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
-      document.getElementById(`menu-${section}`).classList.add('active');
-
-      if (section === 'main') {
-        contentArea.innerHTML = `
-          <h2>Menú Principal</h2>
-          <div class="content-grid">
-            <div class="chart-grid-item">
-              <div class="chart-container">
-                <canvas id="inventoryChart"></canvas>
-                <button class="update-button" onclick="updateChart()">Actualizar</button>
-              </div>
-            </div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <div id="searchResults"></div>
-        `;
-        setTimeout(renderInventoryChart, 0); // Asegurar que el canvas esté en el DOM
-      } else {
-        contentArea.innerHTML = `
-          <h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
-          <p>Contenido para ${section} (en desarrollo).</p>
-          <div id="searchResults"></div>
-        `;
+    async function fetchActiveUsers() {
+      console.log('Obteniendo usuarios activos...');
+      try {
+        const response = await fetch('/api/usuarios-activos');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const users = await response.json();
+        console.log('Datos de usuarios activos:', users);
+        if (!users || users.length === 0) throw new Error('No hay usuarios activos');
+        return users;
+      } catch (error) {
+        console.error('Error al obtener usuarios activos:', error);
+        document.getElementById('usersError').style.display = 'inline-block';
+        return [
+          { nombre: 'Juan Pérez', rol: 'admin', activo: 'Sí', hora_inicio: '2025-06-13 09:00:00' },
+          { nombre: 'María López', rol: 'logistica', activo: 'Sí', hora_inicio: '2025-06-13 10:00:00' }
+        ];
       }
+    }
+
+    async function renderUsersTable() {
+      console.log('Renderizando tabla de usuarios...');
+      const tbody = document.querySelector('#usersTable tbody');
+      if (!tbody) {
+        console.error('Tbody de tabla no encontrado');
+        document.getElementById('usersError').style.display = 'inline-block';
+        return;
+      }
+      const users = await fetchActiveUsers();
+      console.log('Usuarios para renderizar:', users);
+      tbody.innerHTML = '';
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">No hay usuarios activos.</td></tr>';
+        console.log('No hay usuarios para mostrar');
+        return;
+      }
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.nombre}</td>
+          <td>${user.rol}</td>
+          <td>${user.activo}</td>
+          <td>${user.hora_inicio}</td>
+        `;
+        tbody.appendChild(row);
+      });
+      console.log('Tabla de usuarios renderizada con', users.length, 'filas');
     }
 
     function logout() {
-      window.location.href = '/'; // Redirect to first page
+      console.log('Cerrando sesión...');
+      window.location.href = '/login';
     }
 
-    async function searchUsers() {
-      const query = document.getElementById('searchInput').value;
-      if (query.length < 3) {
-        document.getElementById('searchResults').innerHTML = '';
-        return;
-      }
-      try {
-        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
-        const users = await response.json();
-        const resultsDiv = document.getElementById('searchResults');
-        if (users.length === 0) {
-          resultsDiv.innerHTML = '<p>No se encontraron usuarios.</p>';
-        } else {
-          resultsDiv.innerHTML = '<ul>' + users.map(user => `<li>${user.nombre} ${user.apellido} (${user.email})</li>`).join('') + '</ul>';
-        }
-      } catch (error) {
-        console.error('Error en la búsqueda:', error);
-        document.getElementById('searchResults').innerHTML = '<p>Error al buscar usuarios.</p>';
-      }
-    }
+    let inventoryChart = null;
+
+    document.getElementById('welcomeModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeModal();
+    });
+
+    document.getElementById('productsModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeProductsModal();
+    });
+
+    document.getElementById('editUserModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeEditUserModal();
+    });
+
+    document.getElementById('createUserModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeCreateUserModal();
+    });
+
+    document.getElementById('successModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeSuccessModal();
+    });
+
+    document.getElementById('deleteConfirmModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeDeleteConfirmModal();
+    });
+
+    document.getElementById('editPermisosModal')?.addEventListener('click', function(event) {
+      if (event.target === this) closeEditPermisosModal();
+    });
+
+    window.onload = initializePage;
   </script>
 </body>
 </html>
